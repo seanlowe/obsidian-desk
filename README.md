@@ -1,5 +1,9 @@
 # Desk for Obsidian
 
+This is a fork. I have no intention of publishing it or pushing it back to the parent repo, this was for my own use
+
+---
+
 **Desk** is an [Obsidian](https://obsidian.md) plugin that lets you
 choose some of your notes and see them together, at a glance.
 The notes are laid down in a 4x6 aspect ratio which is 
@@ -7,7 +11,7 @@ typically used in analog Zettelkasten systems.
 The inspiration for this plugin is to emulate picking up the cards for a particular topic, and laying them down on a desk.
 To learn more about the rationale behind the plugin, read [this post](https://blog.dlandry.xyz/posts/obsidian_desk/). 
 
-![Screenshot of Desk for Obsidian](./screenshot.png?raw=true)
+![Screenshot of Desk for Obsidian](./images/screenshot.png?raw=true)
 
 ## Installation
 
@@ -15,6 +19,10 @@ To learn more about the rationale behind the plugin, read [this post](https://bl
 
 The easiest way to install this plugin is through Obsidian's community plugins. 
 Desk will be available there as soon as the initial code review is finished.
+
+### BRAT Installation
+
+do the thing, install with BRAT via seanlowe/obsidian-desk
 
 ### Manual installation
 
@@ -43,7 +51,7 @@ Feel free to scale your Obsidian UI up and down to see more of less notes at the
 ## Contribution
 
 Pull requests welcome!
-
+<!-- 
 ## Support
 
 If you like the extension, don't hesitate to [buy me a coffee](https://ko-fi.com/davidlandry). 
@@ -52,4 +60,4 @@ This will help me to keep contributing to the Obsidian ecosystem.
 ## Contact
 
 If you have any problem or comments about the extension, don't hesitate to open a Github issue, or a pull request. 
-You can also contact me on [Twitter/X](https://twitter.com/davidlandry93) and [Discord](https://discordapp.com/users/.dl93).
+You can also contact me on [Twitter/X](https://twitter.com/davidlandry93) and [Discord](https://discordapp.com/users/.dl93). -->
