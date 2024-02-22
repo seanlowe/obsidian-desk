@@ -5,7 +5,7 @@ rm -rf ./dist
 mkdir ./dist
 
 # build main.js
-rollup --config rollup.config.js
+tsc -noEmit -skipLibCheck && node esbuild.config.mjs production
 
 # compile scss into css
 npx sass ./styles/global.scss ./dist/styles.css --no-source-map

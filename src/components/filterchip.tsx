@@ -1,7 +1,8 @@
-import React, { MouseEvent } from 'react'
-import { keyOfFilter } from '../utils/filter'
+import { FC, MouseEvent } from 'react'
 import { Folder, CaseLower, X, Tag, FileInput, FileOutput } from 'lucide-react'
+
 import { FilterChipProps } from '../types'
+import { keyOfFilter } from '../utils/filter'
 
 const iconOfType = {
   'folder': Folder,
@@ -11,7 +12,7 @@ const iconOfType = {
   'backlink': FileInput,
 }
 
-export function FilterChip( props: FilterChipProps ) {
+const FilterChip: FC<FilterChipProps> = ( props ) => {
   const IconType = iconOfType[props.filter.type]
 
   const onCloseClicked = ( e: MouseEvent ) => {
@@ -25,14 +26,18 @@ export function FilterChip( props: FilterChipProps ) {
     <X className="desk__chip-icon desk__chip-delete-icon" />
   </span>
 
-  return <span
-    className={`desk__chip${props.filter.reversed ? ' reversed' : ''}`}
-    onClick={( e ) => {
-      return props.onClick !== undefined ? props.onClick( e ) : null
-    }}
-    key={keyOfFilter( props.filter )}>
-    <IconType className="desk__chip-icon"/>
-    {props.filter.value}
-    {props.closeable ?  closeButton : null}
-  </span>
+  return (
+    <span
+      className={`desk__chip${props.filter.reversed ? ' reversed' : ''}`}
+      onClick={( e ) => {
+        return props.onClick !== undefined ? props.onClick( e ) : null
+      }}
+      key={keyOfFilter( props.filter )}>
+      <IconType className="desk__chip-icon"/>
+      {props.filter.value}
+      {props.closeable ?  closeButton : null}
+    </span>
+  )
 }
+
+export default FilterChip

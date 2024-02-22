@@ -1,6 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, FC } from 'react'
 import { produce } from 'immer'
 import { TFile, App } from 'obsidian'
+
+import FilterMenu from './filtermenu'
+import ResultsDisplay from './results'
 
 import {
   dataviewFileToSearchResult,
@@ -20,10 +23,9 @@ import {
   LinkFilter,
   MaybeSortOption,
   TextFilter,
-  LinkSuggestion
+  LinkSuggestion,
+  SortOption
 } from '../types'
-import { FilterMenu } from './filtermenu'
-import { ResultsDisplay } from './results'
 
 function getTagSuggestions( app: App ): Filter[] {
   const metadataCache = getMetadataCache( app )
@@ -66,20 +68,19 @@ function getBacklinkSuggestions( app: App ): BasicFilter[] {
   const dv = getDataviewAPI( app )
   const allPages = dv.pages( '""' ).values
 
-  const withBacklinks = allPages.map(( p: any ) => {
+  const withBacklinks = allPages.map(( p: { file: unknown }) => {
     return p.file
-  }).filter(( p: any ) => {
+  }).filter(( p: { outlinks: string | unknown[] }) => {
     return p.outlinks.length > 0
-  }).map(( p: any ) => {
+  }).map(({ path }: { path: string }) => {
     return {
       type: 'backlink',
-      value: p.path,
-      key: p.path
+      value: path,
+      key: path
     }
   })
   return withBacklinks
 }
-
 
 function getAllSuggestions( app: App ): Filter[] {
   const suggestions = [
@@ -96,7 +97,7 @@ function getAllSuggestions( app: App ): Filter[] {
   return suggestions.sort( suggestionOrder )
 }
 
-export function DeskComponent() {
+const DeskComponent: FC = () => {
   const [state, setState] = useState<DeskComponentState>({
     filters: [],
     sort: null,
@@ -259,16 +260,16 @@ export function DeskComponent() {
         filters={state.filters}
         suggestions={suggestions}
         sort={state.sort}
-        onSortChange={( sortOption ) => {
+        onSortChange={( sortOption: SortOption ) => {
           return onSortChange( sortOption )
         }}
-        addFilter={( f ) => {
+        addFilter={( f: Filter ) => {
           onAddFilter( f )
         }}
         removeFilter={( i: number ) => {
           onRemoveFilter( i )
         }}
-        reverseFilter={( f ) => {
+        reverseFilter={( f: Filter ) => {
           reverseFilter( f )
         }} />
     </div>
@@ -282,3 +283,5 @@ export function DeskComponent() {
       }} />
   </div>
 }
+
+export default DeskComponent

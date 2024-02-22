@@ -6,14 +6,10 @@ import { MetadataCache } from 'obsidian'
 /*           Interfaces           */
 /* ------------------------------ */
 
-export interface SearchResult {
-  title: string
-  path: string
-  size: number
-  ctime: DateTime
-  mtime: DateTime
-  folder: string
-  backlinks: number
+export interface BasicFilter {
+  type: 'tag' | 'folder' | 'backlink'
+  value: string
+  reversed: boolean
 }
 
 export interface DataviewFile {
@@ -31,24 +27,13 @@ export interface DeskComponentState {
   sort: MaybeSortOption
 }
 
-export interface BasicFilter {
-  type: 'tag' | 'folder' | 'backlink'
-  value: string
-  reversed: boolean
+export interface DeskIndex {
+  links: Map<string, string>
 }
 
-export interface TextFilter {
-  type: 'text',
-  value: string,
-  reversed: boolean
-}
-
-export interface LinkFilter {
-  type: 'link'
-  value: string
-  reversed: boolean
-  exists: boolean
-  alias?: string
+export interface ExtendedMetadataCache extends MetadataCache {
+  getTags(): TagMetadata
+  getLinkSuggestions(): LinkSuggestion[]
 }
 
 export interface FilterChipProps {
@@ -68,17 +53,12 @@ export interface FilterMenuProps {
   sort: MaybeSortOption
 }
 
-export interface NoteCardProps {
-  path: string,
-  title: string,
-  folder: string,
-  backlinks: number,
-  date: DateTime
-  setFilters: ( filters: Filter[] ) => void
-}
-
-export interface TagMetadata {
-  [key: string]: number
+export interface LinkFilter {
+  type: 'link'
+  value: string
+  reversed: boolean
+  exists: boolean
+  alias?: string
 }
 
 export interface LinkSuggestion {
@@ -86,9 +66,23 @@ export interface LinkSuggestion {
   path: string,
 }
 
-export interface ExtendedMetadataCache extends MetadataCache {
-  getTags(): TagMetadata
-  getLinkSuggestions(): LinkSuggestion[]
+export interface NoteCardProps {
+  backlinks: number,
+  date: DateTime
+  folder: string,
+  setFilters: ( filters: Filter[] ) => void
+  title: string,
+  path: string,
+}
+
+export interface SearchResult {
+  title: string
+  path: string
+  size: number
+  ctime: DateTime
+  mtime: DateTime
+  folder: string
+  backlinks: number
 }
 
 export interface SearchResultsProps {
@@ -108,8 +102,14 @@ export interface SortOption {
   reverse: boolean,
 }
 
-export interface DeskIndex {
-  links: Map<string, string>
+export interface TagMetadata {
+  [key: string]: number
+}
+
+export interface TextFilter {
+  type: 'text',
+  value: string,
+  reversed: boolean
 }
 
 /* ------------------------------ */

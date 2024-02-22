@@ -1,27 +1,18 @@
-import React, { useState, useRef, useEffect, MouseEvent, useContext } from 'react'
+import { useState, useRef, useEffect, MouseEvent, useContext, FC } from 'react'
 import { TFile } from 'obsidian'
 
-import { NoteCard } from './notecard'
-import { ObsidianContext } from '../utils/obsidian'
-import { SearchResultsProps } from '../types'
-import { RESULTS_BATCH_SIZE } from '../constants'
+import NoteCard from './notecard'
 
-export function ResultsDisplay( props: SearchResultsProps ) {
+import { RESULTS_BATCH_SIZE } from '../constants'
+import { Filter, SearchResultsProps } from '../types'
+import { ObsidianContext } from '../utils/obsidian'
+
+const ResultsDisplay: FC<SearchResultsProps> = ( props ) => {
   const app = useContext( ObsidianContext )
   const numberResults = props.results.length
   const [numberResultsShown, setNumberResultsShown] = useState( Math.min( RESULTS_BATCH_SIZE, props.results.length ))
   const resultDisplayRef = useRef( null )
   const bottomSensorRef = useRef( null )
-
-  function onIntersect( entries: IntersectionObserverEntry[] ) {
-    if ( entries.some( e => {
-      return e.isIntersecting
-    })) {
-      if ( numberResults > numberResultsShown ) {
-        setNumberResultsShown( Math.min( numberResults, numberResultsShown + RESULTS_BATCH_SIZE ))
-      }
-    }
-  }
 
   useEffect(() => {
     setNumberResultsShown( Math.min( RESULTS_BATCH_SIZE, props.results.length ))
@@ -37,6 +28,16 @@ export function ResultsDisplay( props: SearchResultsProps ) {
       }
     }
   }, [numberResultsShown] )
+
+  const onIntersect = ( entries: IntersectionObserverEntry[] ) => {
+    if ( entries.some( e => {
+      return e.isIntersecting
+    })) {
+      if ( numberResults > numberResultsShown ) {
+        setNumberResultsShown( Math.min( numberResults, numberResultsShown + RESULTS_BATCH_SIZE ))
+      }
+    }
+  }
 
   const clickHandler = ( e: MouseEvent ) => {
     const target = e.target
@@ -71,26 +72,37 @@ export function ResultsDisplay( props: SearchResultsProps ) {
   }
 
   const resultItems = props.results.slice( 0, numberResultsShown ).map( r => {
-    return <div className='desk__search-result' key={r.path}>
-      <NoteCard
-        title={r.title}
-        path={r.path}
-        folder={r.folder}
-        backlinks={r.backlinks}
-        date={r.mtime}
-        setFilters={( filters ) => {
-          props.setFilters( filters )
-        }}
-      />
-    </div>
+    return (
+      <div className='desk__search-result' key={r.path}>
+        <NoteCard
+          backlinks={r.backlinks}
+          date={r.mtime}
+          folder={r.folder}
+          path={r.path}
+          title={r.title}
+          setFilters={( filters: Filter[] ) => {
+            props.setFilters( filters )
+            return
+          }}
+        />
+      </div>
+    )
   })
 
-  return <div>
-    <div className='desk__search-result-container' ref={resultDisplayRef} onClick={( e ) => {
-      return clickHandler( e )
-    }}>
-      {resultItems}
-      <div ref={bottomSensorRef} className="desk__results-bottom-sensor"></div>
+  return (
+    <div>
+      <div
+        className='desk__search-result-container'
+        ref={resultDisplayRef}
+        onClick={( e ) => {
+          return clickHandler( e )
+        }}
+      >
+        {resultItems}
+        <div ref={bottomSensorRef} className="desk__results-bottom-sensor"></div>
+      </div>
     </div>
-  </div>
+  )
 }
+
+export default ResultsDisplay

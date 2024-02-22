@@ -1,13 +1,14 @@
-import React, { ChangeEvent, useEffect, useRef } from 'react'
-import { useState } from 'react'
-import { keyOfFilter, filterEqual } from '../utils/filter'
-import { FilterChip } from './filterchip'
-import { SortChip } from './sortchip'
+import { ChangeEvent, FC, useEffect, useRef, useState } from 'react'
 import { LampDesk } from 'lucide-react'
-import { Filter, FilterMenuProps } from '../types'
-import { MAX_SUGGESTIONS } from 'src/constants'
 
-export function FilterMenu( props: FilterMenuProps ) {
+import FilterChip from './filterchip'
+import SortChip from './sortchip'
+
+import { MAX_SUGGESTIONS } from '../constants'
+import { Filter, FilterMenuProps } from '../types'
+import { keyOfFilter, filterEqual } from '../utils/filter'
+
+const FilterMenu: FC<FilterMenuProps> = ( props ) => {
   const [userInput, setUserInput] = useState( '' )
   const [showSuggestionsMenu, setShowSuggestionsMenu] = useState( false )
   const [showSuggestionsSpinner, setShowSuggestionsSpinner] = useState( true )
@@ -139,27 +140,30 @@ export function FilterMenu( props: FilterMenuProps ) {
     }
   }
 
-
   const suggestionComponents = filteredSuggestions.slice( 0, MAX_SUGGESTIONS ).map(( suggestion, index ) => {
-    return <li key={keyOfFilter( suggestion )} className={'desk__dropdown-list-item'}>
-      <a
-        className={`${index === selectedSuggestion ? 'selected' : ''}`}
-        onClick={() => {
-          addSuggestion( suggestion )
-        }}
-        onMouseEnter={() => {
-          selectSuggestion( index )
-        }}
-      >{suggestionDescription( suggestion )}</a>
-    </li>
+    return (
+      <li key={keyOfFilter( suggestion )} className={'desk__dropdown-list-item'}>
+        <a
+          className={`${index === selectedSuggestion ? 'selected' : ''}`}
+          onClick={() => {
+            addSuggestion( suggestion )
+          }}
+          onMouseEnter={() => {
+            selectSuggestion( index )
+          }}
+        >{suggestionDescription( suggestion )}</a>
+      </li>
+    )
   })
 
   const chips = filters.map(( f, i ) => {
-    return <FilterChip filter={f} onClick={() => {
-      return props.reverseFilter( f )
-    }} key={keyOfFilter( f )} closeable={true} onClose={() => {
-      return removeChip( i )
-    }} />
+    return (
+      <FilterChip filter={f} onClick={() => {
+        return props.reverseFilter( f )
+      }} key={keyOfFilter( f )} closeable={true} onClose={() => {
+        return removeChip( i )
+      }} />
+    )
   })
 
   const suggestionList = <div>
@@ -197,3 +201,5 @@ export function FilterMenu( props: FilterMenuProps ) {
     </div>
   )
 }
+
+export default FilterMenu

@@ -1,10 +1,11 @@
-import React, { useContext, useState, useEffect, useRef } from 'react'
+import { useContext, useState, useEffect, useRef, FC } from 'react'
 import { App, TFile, MarkdownRenderer } from 'obsidian'
 import { Clock, FileInput, Folder } from 'lucide-react'
 import { DateTime } from 'luxon'
+import * as _ from 'lodash'
 
-import { ObsidianContext } from '../utils'
 import { NoteCardProps } from '../types'
+import { ObsidianContext } from '../utils'
 
 function navigateToNote( path: string, app: App ) {
   const note = app.vault.getAbstractFileByPath( path )
@@ -13,52 +14,61 @@ function navigateToNote( path: string, app: App ) {
   }
 }
 
-export function NoteCard( props: NoteCardProps ) {
-  const app = useContext( ObsidianContext ) as App
+const NoteCard: FC<NoteCardProps> = ( props ) => {
+  const app = useContext( ObsidianContext )
   const [body, setBody] = useState( '' )
   const contentRef = useRef<HTMLDivElement>( null )
   const [expanded, setExpanded] = useState( false )
   const [overflowing, setOverflowing] = useState( false )
 
-
   useEffect(() => {
     const container = contentRef.current
+    const renderNote = async () => {
+      if ( container !== null ) {
+        console.log( 'Rendering note' )
+        await MarkdownRenderer.render( app, body, container, props.path, null )
 
-    if ( container !== null ) {
-      MarkdownRenderer.render(
-        app, body, container, props.path, null,
-      ).then(() => {
         checkOverflow( container )
-      })
-    } else {
-      throw new Error( 'Own container not found' )
+      } else {
+        throw new Error( 'Owned container not found' )
+      }
+    }
+    renderNote()
+
+    return () => {
+      setBody( '' )
     }
   }, [body] )
 
-
-  function checkOverflow( container: HTMLDivElement ) {
-    if ( container.scrollHeight > container.clientHeight ) {
-      setOverflowing( true )
-    } else {
-      setOverflowing( false )
-    }
-  }
-
   useEffect(() => {
-    if ( file instanceof TFile ) {
-      const fileContents = app.vault.cachedRead( file )
-      fileContents.then( setBody )
-    } else {
-      setBody( 'Error' )
+    const getContents = async () => {
+      if ( file instanceof TFile ) {
+        setBody( '' )
+        const fileContents = await app.vault.cachedRead( file )
+        setBody( fileContents )
+      } else {
+        setBody( 'Error' )
+      }
+    }
+    getContents()
+
+    return () => {
+      setBody( '' )
     }
   }, [] )
 
   // Monitor modifications on that file.
   useEffect(() => {
-    const callbackRef = app.vault.on( 'modify', ( file ) => {
+    const callbackRef = app.vault.on( 'modify', async ( file ) => {
+      console.log( 'calling modify callback function', { body })
       if ( file.path === props.path ) {
         if ( file instanceof TFile ) {
-          app.vault.cachedRead( file ).then( setBody )
+          setBody( '' )
+          const fileContents = await app.vault.cachedRead( file )
+          console.log({ fileContents, contentRef, children: contentRef.current.children })
+          // some way to clear out the old children of the ref?
+          // contentRef.current.children.item()
+          setBody( fileContents )
         }
       }
     })
@@ -67,6 +77,14 @@ export function NoteCard( props: NoteCardProps ) {
       app.vault.offref( callbackRef )
     }
   })
+
+  const checkOverflow = ( container: HTMLDivElement ) => {
+    if ( container.scrollHeight > container.clientHeight ) {
+      setOverflowing( true )
+    } else {
+      setOverflowing( false )
+    }
+  }
 
   function onClick() {
     setExpanded( !expanded )
@@ -78,49 +96,53 @@ export function NoteCard( props: NoteCardProps ) {
   const expandedClass = expanded ? 'expanded' : ''
   const contentStyle = expanded && contentRef.current ? { maxHeight: contentRef.current.scrollHeight } : {}
 
-  return <div className='desk__note-card' onClick={() => {
-    onClick()
-  }}>
-    <div className='desk__note-card-header'>
-      <a
-        onClick={() => {
+  return (
+    <div className='desk__note-card' onClick={() => {
+      onClick()
+    }}>
+      <div className='desk__note-card-header'>
+        <a onClick={() => {
           return navigateToNote( props.path, app )
-        }}
-      >
-        <h3>{props.title}</h3>
-      </a>
-    </div>
-    <div
-      className={`desk__search-result-content ${overflowingClass} ${expandedClass}`}
-      ref={contentRef}
-      style={contentStyle}
-    />
-    <div className='desk__note-card-footer'>
-      {props.folder &&
+        }}>
+          <h3 style={{ textDecoration: 'none' }}>{ _.capitalize( props.title ) }</h3>
+          <hr style={{ marginTop: '1rem', marginBottom: '1rem' }}/>
+        </a>
+      </div>
+      {/* note content here */}
+      <div
+        className={`desk__search-result-content ${overflowingClass} ${expandedClass}`}
+        ref={contentRef}
+        style={contentStyle}
+      />
+      <div className='desk__note-card-footer'>
+        {props.folder &&
+          <span>
+            <Folder className="desk__note-card-header-details-icon" />
+            <a
+              onClick={() => {
+                props.setFilters( [{ type: 'folder', reversed: false, value: props.folder }] )
+              }}
+            >
+              {' '}{props.folder}
+            </a>
+          </span>
+        }
         <span>
-          <Folder className="desk__note-card-header-details-icon" />
-          <a
-            onClick={() => {
-              props.setFilters( [{ type: 'folder', reversed: false, value: props.folder }] )
-            }}
+          <FileInput className="desk__note-card-header-details-icon" />
+          <a onClick={() => {
+            props.setFilters( [{ type: 'link', reversed: false, value: props.path, exists: true }] )
+          }}
           >
-            {' '}{props.folder}
+            {' '}{`${props.backlinks} ${backlinkString}`}
           </a>
         </span>
-      }
-      <span>
-        <FileInput className="desk__note-card-header-details-icon" />
-        <a onClick={() => {
-          props.setFilters( [{ type: 'link', reversed: false, value: props.path, exists: true }] )
-        }}
-        >
-          {' '}{`${props.backlinks} ${backlinkString}`}
-        </a>
-      </span>
-      <span>
-        <Clock className="desk__note-card-header-details-icon" />
-        {' '}Modified on {props.date.toLocaleString( DateTime.DATE_SHORT )}
-      </span>
+        <span>
+          <Clock className="desk__note-card-header-details-icon" />
+          {' '}Modified on {props.date.toLocaleString( DateTime.DATE_SHORT )}
+        </span>
+      </div>
     </div>
-  </div>
+  )
 }
+
+export default NoteCard

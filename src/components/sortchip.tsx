@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { ArrowDownAZ, ArrowUpAZ, ChevronDown, X } from 'lucide-react'
-import { SortOption, SortChipProps } from 'src/types'
+
+import { SortOption, SortChipProps } from '../types'
 
 const sortOptions: SortOption[] = [
   { label: 'Date Modified', type: 'modified_date', reverse: false },
@@ -9,7 +10,7 @@ const sortOptions: SortOption[] = [
   { label: 'Number of backlinks', type: 'backlinks', reverse: true }
 ]
 
-export function SortChip( props: SortChipProps ) {
+const SortChip: FC<SortChipProps> = ( props ) => {
   const [showDropdown, setShowDropdown] = useState( false )
   const dropdownRef = useRef<HTMLDivElement>( null )
 
@@ -50,14 +51,16 @@ export function SortChip( props: SortChipProps ) {
   }
 
   const sortOptionsButtons = sortOptions.map(( so ) => {
-    return <li
-      className='desk__dropdown-list-item'
-      key={so.label}
-      onClick={() => {
-        optionClicked( so )
-      }}>
-      <a>{so.label}</a>
-    </li>
+    return (
+      <li
+        className='desk__dropdown-list-item'
+        key={so.label}
+        onClick={() => {
+          optionClicked( so )
+        }}>
+        <a>{so.label}</a>
+      </li>
+    )
   })
 
   const dropdown = <div className='desk__dropdown' ref={dropdownRef}>
@@ -72,16 +75,22 @@ export function SortChip( props: SortChipProps ) {
     : <ArrowUpAZ className="desk__chip-icon" />
 
 
-  return <div className='desk__sort-chip-container'>
-    <span className={`desk__chip ${props.sort === null ? 'empty' : ''}`} onClick={( e ) => {
-      onClick( e )
-    }}>
-      {props.sort === null ? 'Sort by...' : <span> {orderIcon}{props.sort.label}</span>}
-      {props.sort === null ? <ChevronDown className="desk__chip-icon" /> : <X className="desk__chip-icon" onClick={( e ) => {
-        e.stopPropagation()
-        props.onChange( null )
-      }} />}
-    </span>
-    {showDropdown ? dropdown : null}
-  </div>
+  return (
+    <div className='desk__sort-chip-container'>
+      <span className={`desk__chip ${props.sort === null ? 'empty' : ''}`} onClick={( e ) => {
+        onClick( e )
+      }}>
+        {props.sort === null ? 'Sort by...' : <span> {orderIcon}{props.sort.label}</span>}
+        {props.sort === null
+          ? <ChevronDown className="desk__chip-icon" />
+          : <X className="desk__chip-icon" onClick={( e ) => {
+            e.stopPropagation()
+            props.onChange( null )
+          }} />}
+      </span>
+      {showDropdown ? dropdown : null}
+    </div>
+  )
 }
+
+export default SortChip

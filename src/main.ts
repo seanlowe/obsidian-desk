@@ -1,11 +1,11 @@
 import { Plugin } from 'obsidian'
 
 import { VIEW_TYPE_DESK } from './constants'
-import { DeskView } from './components/deskview'
+import DeskView from './components/deskview'
 
-export default class DeskPlugin extends Plugin {
-  async onload() {
-    // await this.loadSettings()
+class DeskPlugin extends Plugin {
+  onload = async () => {
+    await this.loadSettings()
 
     this.addRibbonIcon( 'lamp-desk', 'Create new desk', () => {
       this.activateView()
@@ -24,13 +24,14 @@ export default class DeskPlugin extends Plugin {
     })
   }
 
-  // async loadSettings() {
-  // }
+  loadSettings = async () => {
+    console.log( 'loading plugin: desk v2 (personal)' )
+  }
 
   // async saveSettings() {
   // }
 
-  async activateView() {
+  activateView = async () => {
     let leaf = undefined
 
     const leavesOfType = this.app.workspace.getLeavesOfType( VIEW_TYPE_DESK )
@@ -48,3 +49,5 @@ export default class DeskPlugin extends Plugin {
     this.app.workspace.revealLeaf( leaf )
   }
 }
+
+export default DeskPlugin

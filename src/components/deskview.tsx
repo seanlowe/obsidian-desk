@@ -2,12 +2,13 @@ import * as React from 'react'
 import { createRoot, Root } from 'react-dom/client'
 import { ItemView, WorkspaceLeaf, Vault, App, KeymapEventHandler, Scope } from 'obsidian'
 
+import DeskComponent from './desk'
+
 import { VIEW_TYPE_DESK } from '../constants'
-import { DeskComponent } from './desk'
 import { ExtendedMetadataCache } from '../types'
 import { ObsidianContext } from '../utils/obsidian'
 
-export class DeskView extends ItemView {
+class DeskView extends ItemView {
   vault: Vault
   metadataCache: ExtendedMetadataCache
   results: Array<string>
@@ -55,3 +56,5 @@ export class DeskView extends ItemView {
     if ( this.root ) this.root.unmount()
   }
 }
+
+export default DeskView
