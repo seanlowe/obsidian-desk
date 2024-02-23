@@ -1,0 +1,52 @@
+
+.desk__note-card {
+  position: sticky;
+  padding: 8px;
+  margin: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
+  word-break: break-word;
+  user-select: auto;
+  width: 600px;
+  min-height: 400px;
+  background-color: var(--background-primary-alt);
+  padding-bottom: 30px;
+  user-select: text;
+}
+
+.desk__note-card h3 {
+  font-weight: bold;
+  font-size: var(--h3-size);
+  margin-top: var(--size-4-1);
+}
+
+.desk__note-card a h3 {
+  text-decoration: none;
+  margin-bottom: var(--size-4-1)
+}
+
+.desk__note-card-header-details {
+  color: var(--text-faint);
+  font-size: var(--font-smaller);
+  margin-top: var(--size-4-2);
+  margin-bottom: var(--size-4-4);
+}
+
+.desk__note-card-footer {
+  color: var(--text-faint);
+  margin-top: var(--size-4-2);
+  margin-bottom: var(--size-4-4);
+  position: absolute;
+  bottom: 0;
+}
+
+.desk__note-card-footer > span {
+  margin-right: var(--size-4-2)
+}
+
+.desk__note-card-header-details-icon {
+  width: var(--icon-s);
+  height: var(--icon-s);
+  position: relative;
+  top: 2px;
+}

@@ -1,0 +1,52 @@
+div.desk__sort-chip-dropdown {
+  position: absolute;
+  overflow: hidden;
+}
+
+.desk__chip-delete-icon {
+  border-left: 1px solid var(--tag-border-color-hover)
+}
+
+.desk__filter-menu {
+  display: flex;
+}
+
+span.desk__chip {
+  color: var(--tag-color);
+  font-size: var(--tag-size);
+  font-weight: bold;
+  background-color: var(--tag-background);
+  padding: 0 var(--tag-padding-x);
+  border: var(--tag-border-width) solid var(--tag-border-color);
+  border-radius: var(--tag-radius);
+  display: inline-block;
+  margin: 0 var(--size-4-1) 0 0;
+  line-height: var(--input-height);
+  row-gap: var(--size-4-1);
+}
+
+span.desk__chip.reversed {
+  text-decoration: line-through;
+  filter: saturate(0.2)
+}
+
+span.desk__chip.empty {
+  background-color: none;
+}
+
+span.desk__chip a {
+  text-decoration: none;
+}
+
+span.desk__chip:hover {
+  color: var(--tag-color-hover);
+  background-color: var(--tag-background-hover);
+  border-color: var(--tag-border-color-hover);
+}
+
+span.desk__chip .desk__chip-icon {
+  width: var(--tag-size);
+  height: var(--tag-size);
+}
+
+// div.desk__sort-chip-container {}
