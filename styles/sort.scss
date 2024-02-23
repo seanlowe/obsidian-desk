@@ -8,7 +8,10 @@ div.desk__sort-chip-dropdown {
 }
 
 .desk__filter-menu {
-  display: flex;
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
 }
 
 span.desk__chip {
@@ -19,10 +22,11 @@ span.desk__chip {
   padding: 0 var(--tag-padding-x);
   border: var(--tag-border-width) solid var(--tag-border-color);
   border-radius: var(--tag-radius);
-  display: inline-block;
+  display: inline-flex;
   margin: 0 var(--size-4-1) 0 0;
   line-height: var(--input-height);
   row-gap: var(--size-4-1);
+  align-items: center;
 }
 
 span.desk__chip.reversed {
@@ -47,6 +51,8 @@ span.desk__chip:hover {
 span.desk__chip .desk__chip-icon {
   width: var(--tag-size);
   height: var(--tag-size);
+  margin-left: 5px;
+  transform: scale(1.5);
 }
 
 // div.desk__sort-chip-container {}

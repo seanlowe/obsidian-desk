@@ -46,11 +46,11 @@
 
 .desk__autocomplete-search-box-container {
   width: 80%;
-  margin: auto;
-  width: 100%;
+  /* margin: auto; */
+  width: auto;
   display: flex;
   flex-wrap: wrap;
-  padding: var(--size-4-1) var(--size-4-2);
+  /* padding: var(--size-4-1) var(--size-4-2); */
   border-radius: var(--input-radius);
   vertical-align: middle;
 }

@@ -123,7 +123,7 @@ const NoteCard: FC<NoteCardProps> = ( props ) => {
                 props.setFilters( [{ type: 'folder', reversed: false, value: props.folder }] )
               }}
             >
-              {' '}{props.folder}
+              {props.folder}
             </a>
           </span>
         }
@@ -133,12 +133,12 @@ const NoteCard: FC<NoteCardProps> = ( props ) => {
             props.setFilters( [{ type: 'link', reversed: false, value: props.path, exists: true }] )
           }}
           >
-            {' '}{`${props.backlinks} ${backlinkString}`}
+            {`${props.backlinks} ${backlinkString}`}
           </a>
         </span>
         <span>
           <Clock className="desk__note-card-header-details-icon" />
-          {' '}Modified on {props.date.toLocaleString( DateTime.DATE_SHORT )}
+          Modified on {props.date.toLocaleString( DateTime.DATE_SHORT )}
         </span>
       </div>
     </div>
