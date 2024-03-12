@@ -36,23 +36,6 @@ export interface ExtendedMetadataCache extends MetadataCache {
   getLinkSuggestions(): LinkSuggestion[]
 }
 
-export interface FilterChipProps {
-  filter: Filter,
-  onClick?: MouseEventHandler,
-  closeable?: boolean
-  onClose?: ( filter: Filter ) => void
-}
-
-export interface FilterMenuProps {
-  filters: Filter[]
-  suggestions: Filter[]
-  addFilter: ( newFilter: Filter ) => void
-  removeFilter: ( index: number ) => void
-  reverseFilter: ( filter: Filter ) => void
-  onSortChange: ( sortOption: MaybeSortOption ) => void
-  sort: MaybeSortOption
-}
-
 export interface LinkFilter {
   type: 'link'
   value: string
@@ -66,15 +49,6 @@ export interface LinkSuggestion {
   path: string,
 }
 
-export interface NoteCardProps {
-  backlinks: number,
-  date: DateTime
-  folder: string,
-  setFilters: ( filters: Filter[] ) => void
-  title: string,
-  path: string,
-}
-
 export interface SearchResult {
   title: string
   path: string
@@ -83,17 +57,6 @@ export interface SearchResult {
   mtime: DateTime
   folder: string
   backlinks: number
-}
-
-export interface SearchResultsProps {
-  results: SearchResult[]
-  addFilter: ( filter: Filter ) => void
-  setFilters: ( filters: Filter[] ) => void
-}
-
-export interface SortChipProps {
-  onChange: ( sortOption: MaybeSortOption ) => void
-  sort: MaybeSortOption
 }
 
 export interface SortOption {
@@ -113,8 +76,64 @@ export interface TextFilter {
 }
 
 /* ------------------------------ */
+/*              Props             */
+/* ------------------------------ */
+
+export interface BacklinksProps {
+  backlinks: number
+  backlinkOnClick: ( type: 'link' | 'folder' ) => void
+}
+
+export interface FilterChipProps {
+  filter: Filter,
+  onClick?: MouseEventHandler,
+  closeable?: boolean
+  onClose?: ( filter: Filter ) => void
+}
+
+export interface FilterMenuProps {
+  filters: Filter[]
+  suggestions: Filter[]
+  addFilter: ( newFilter: Filter ) => void
+  removeFilter: ( index: number ) => void
+  reverseFilter: ( filter: Filter ) => void
+  onSortChange: ( sortOption: MaybeSortOption ) => void
+  sort: MaybeSortOption
+}
+
+export interface FolderProps {
+  folder: string
+  folderOnClick: ( type: 'link' | 'folder' ) => void
+}
+
+export interface ModifiedAtProps {
+  date: DateTime
+}
+
+export interface NoteCardProps {
+  backlinks: number,
+  date: DateTime
+  folder: string,
+  setFilters: ( filters: Filter[] ) => void
+  title: string,
+  path: string,
+}
+
+export interface SearchResultsProps {
+  results: SearchResult[]
+  addFilter: ( filter: Filter ) => void
+  setFilters: ( filters: Filter[] ) => void
+}
+
+export interface SortChipProps {
+  onChange: ( sortOption: MaybeSortOption ) => void
+  sort: MaybeSortOption
+}
+
+/* ------------------------------ */
 /*              Types             */
 /* ------------------------------ */
 
 export type MaybeSortOption = SortOption | null
 export type Filter = BasicFilter | LinkFilter | TextFilter
+export type Sorter = { [key: string]: ( a: SearchResult, b: SearchResult ) => number }

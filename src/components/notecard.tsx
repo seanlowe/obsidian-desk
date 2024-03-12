@@ -1,11 +1,10 @@
 import { useContext, useState, useEffect, useRef, FC } from 'react'
 import { App, TFile, MarkdownRenderer } from 'obsidian'
-import { Clock, FileInput, Folder } from 'lucide-react'
-import { DateTime } from 'luxon'
 import * as _ from 'lodash'
 
 import { NoteCardProps } from '../types'
 import { ObsidianContext } from '../utils'
+import { ModifiedAt, Backlinks, Folder } from './footer-components'
 
 function navigateToNote( path: string, app: App ) {
   const note = app.vault.getAbstractFileByPath( path )
@@ -25,6 +24,7 @@ const NoteCard: FC<NoteCardProps> = ( props ) => {
     const container = contentRef.current
     const renderNote = async () => {
       if ( container !== null ) {
+        // SEANTODO: fix error here
         console.log( 'Rendering note' )
         await MarkdownRenderer.render( app, body, container, props.path, null )
 
@@ -91,15 +91,26 @@ const NoteCard: FC<NoteCardProps> = ( props ) => {
   }
 
   const file = app.vault.getAbstractFileByPath( props.path )
-  const backlinkString = props.backlinks === 1 ? 'backlink' : 'backlinks'
   const overflowingClass = overflowing && !expanded ? 'overflowing' : ''
   const expandedClass = expanded ? 'expanded' : ''
   const contentStyle = expanded && contentRef.current ? { maxHeight: contentRef.current.scrollHeight } : {}
+
+  const filterOnClick = ( type: 'link' | 'folder' ): void => {
+    const newFilter = { type, reversed: false, value: props.path, exists: true }
+    if ( type === 'folder' ) {
+      delete newFilter.exists
+    }
+
+    props.setFilters( [newFilter] )
+    return
+  }
 
   return (
     <div className='desk__note-card' onClick={() => {
       onClick()
     }}>
+
+      {/* header */}
       <div className='desk__note-card-header'>
         <a onClick={() => {
           return navigateToNote( props.path, app )
@@ -108,38 +119,19 @@ const NoteCard: FC<NoteCardProps> = ( props ) => {
           <hr style={{ marginTop: '1rem', marginBottom: '1rem' }}/>
         </a>
       </div>
-      {/* note content here */}
+
+      {/* content */}
       <div
         className={`desk__search-result-content ${overflowingClass} ${expandedClass}`}
         ref={contentRef}
         style={contentStyle}
       />
+
+      {/* footer */}
       <div className='desk__note-card-footer'>
-        {props.folder &&
-          <span>
-            <Folder className="desk__note-card-header-details-icon" />
-            <a
-              onClick={() => {
-                props.setFilters( [{ type: 'folder', reversed: false, value: props.folder }] )
-              }}
-            >
-              {props.folder}
-            </a>
-          </span>
-        }
-        <span>
-          <FileInput className="desk__note-card-header-details-icon" />
-          <a onClick={() => {
-            props.setFilters( [{ type: 'link', reversed: false, value: props.path, exists: true }] )
-          }}
-          >
-            {`${props.backlinks} ${backlinkString}`}
-          </a>
-        </span>
-        <span>
-          <Clock className="desk__note-card-header-details-icon" />
-          Modified on {props.date.toLocaleString( DateTime.DATE_SHORT )}
-        </span>
+        <Folder folder={props.folder} folderOnClick={filterOnClick} />
+        <Backlinks backlinkOnClick={filterOnClick} backlinks={props.backlinks} />
+        <ModifiedAt date={props.date} />
       </div>
     </div>
   )
