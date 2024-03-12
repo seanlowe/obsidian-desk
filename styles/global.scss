@@ -4,9 +4,9 @@
 @use './sort.scss';
 
 .desk_root {
-    position: relative;
+  position: relative;
 }
 
 .view-content:has(div.desk__root) {
-    padding: 0;
+  padding: 0;
 }

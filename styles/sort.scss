@@ -12,6 +12,7 @@ div.desk__sort-chip-dropdown {
   flex-wrap: wrap;
   justify-content: space-between;
   width: 100%;
+  padding: 0 30px 0 30px;
 }
 
 span.desk__chip {
@@ -23,9 +24,19 @@ span.desk__chip {
   border: var(--tag-border-width) solid var(--tag-border-color);
   border-radius: var(--tag-radius);
   display: inline-flex;
-  margin: 0 var(--size-4-1) 0 0;
   line-height: var(--input-height);
   row-gap: var(--size-4-1);
+  align-items: center;
+  width: 108%;
+  margin-right: 16px;
+  right: 25px;
+  position: relative;
+}
+
+span.desk__chip .desk__chip-label {
+  width: inherit;
+  display: flex;
+  justify-content: space-evenly;
   align-items: center;
 }
 
@@ -54,5 +65,3 @@ span.desk__chip .desk__chip-icon {
   margin-left: 5px;
   transform: scale(1.5);
 }
-
-// div.desk__sort-chip-container {}

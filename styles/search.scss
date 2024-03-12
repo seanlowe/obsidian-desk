@@ -1,3 +1,7 @@
+.desk__filter-search-container desk__dropdown {
+  position: inherit;
+}
+
 .desk__search-result-container {
   display: flex;
   width: 100%;
@@ -12,7 +16,6 @@
   top: 0;
   background-color: var(--background-primary);
   width: 100%;
-  z-index: 1;
   border-bottom: var(--border-width) solid var(--background-modifier-border);
 }
 
@@ -21,7 +24,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   word-wrap: break-word;
-  max-height: 280px;
+  height: 280px;
   transition: max-height 300ms ease-out;
 }
 

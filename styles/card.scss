@@ -1,15 +1,13 @@
 .desk__note-card {
-  position: sticky;
   padding: 8px;
   margin: 8px;
   border-radius: 8px;
   border: 1px solid var(--background-modifier-border);
   word-break: break-word;
-  user-select: auto;
   width: 575px;
   min-height: 365px;
   background-color: var(--background-primary-alt);
-  padding-bottom: 30px;
+  padding-bottom: 0px;
   user-select: text;
 }
 
@@ -35,7 +33,7 @@
   color: var(--text-faint);
   margin-top: var(--size-4-2);
   margin-bottom: var(--size-4-2);
-  position: absolute;
+  position: relative;
   bottom: 0;
   display: inline-flex;
   width: 100%;
@@ -43,11 +41,6 @@
   justify-content: space-between;
   transform: scale(0.97);
 }
-
-// remove
-// .desk__note-card-footer > span {
-//   margin-right: var(--size-4-2)
-// }
 
 .desk__note-card-header-details-icon {
   width: var(--icon-s);
