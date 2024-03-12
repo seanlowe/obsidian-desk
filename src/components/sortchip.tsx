@@ -1,14 +1,8 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { ArrowDownAZ, ArrowUpAZ, ChevronDown, X } from 'lucide-react'
+import { ArrowDownAZ, ArrowDownUp, ArrowUpAZ, ChevronDown, X } from 'lucide-react'
 
+import { sortOptions } from '../constants'
 import { SortOption, SortChipProps } from '../types'
-
-const sortOptions: SortOption[] = [
-  { label: 'Date Modified', type: 'modified_date', reverse: false },
-  { label: 'Name', type: 'name', reverse: false },
-  { label: 'Note size', type: 'size', reverse: false },
-  { label: 'Number of backlinks', type: 'backlinks', reverse: true }
-]
 
 const SortChip: FC<SortChipProps> = ( props ) => {
   const [showDropdown, setShowDropdown] = useState( false )
@@ -63,32 +57,38 @@ const SortChip: FC<SortChipProps> = ( props ) => {
     )
   })
 
-  const dropdown = <div className='desk__dropdown' ref={dropdownRef}>
-    <ul className='desk__dropdown-list'>
-      {sortOptionsButtons}
-    </ul>
-  </div>
-
-  const orderIcon = props.sort
-    && !props.sort.reverse
-    ? <ArrowDownAZ className="desk__chip-icon" />
-    : <ArrowUpAZ className="desk__chip-icon" />
-
+  let orderIcon = <ArrowDownUp className="desk__chip-icon" />
+  if ( props.sort ) {
+    if ( !props.sort.reverse ) {
+      orderIcon = <ArrowDownAZ className="desk__chip-icon" />
+    } else {
+      orderIcon = <ArrowUpAZ className="desk__chip-icon" />
+    }
+  }
 
   return (
     <div className='desk__sort-chip-container'>
-      <span className={`desk__chip ${props.sort === null ? 'empty' : ''}`} onClick={( e ) => {
+      <span className={'desk__chip'} onClick={( e ) => {
         onClick( e )
       }}>
-        {props.sort === null ? 'Sort by...' : <span> {orderIcon}{props.sort.label}</span>}
+        <span className='desk__chip-label'> {orderIcon}{props.sort?.label ?? 'Sort'}</span>
         {props.sort === null
           ? <ChevronDown className="desk__chip-icon" />
-          : <X className="desk__chip-icon" onClick={( e ) => {
-            e.stopPropagation()
-            props.onChange( null )
-          }} />}
+          : <X className="desk__chip-icon"
+            onClick={( e ) => {
+              e.stopPropagation()
+              props.onChange( null )
+            }}
+          />}
       </span>
-      {showDropdown ? dropdown : null}
+      {showDropdown && (
+        // SEANTODO: make the classname specific to sort options dropdown
+        <div className='desk__dropdown' ref={dropdownRef}>
+          <ul className='desk__dropdown-list'>
+            {sortOptionsButtons}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

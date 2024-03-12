@@ -124,6 +124,7 @@ const FilterMenu: FC<FilterMenuProps> = ( props ) => {
     }
   })
 
+  // SEANTODO: make this better
   function suggestionDescription( filter: Filter ) {
     if ( filter.type === 'tag' ) {
       return <span>Has tag <FilterChip filter={filter} closeable={false} /></span>
@@ -194,8 +195,9 @@ const FilterMenu: FC<FilterMenuProps> = ( props ) => {
             value={userInput}
             onChange={onTextChange}
             placeholder='Filter by tag, link...'
-            ref={textInputRef} ></input>
-          {showSuggestionsMenu ? suggestionContents : null}
+            ref={textInputRef}
+          />
+          {showSuggestionsMenu && suggestionContents}
         </div>
       </div>
     </div>
