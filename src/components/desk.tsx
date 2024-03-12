@@ -146,10 +146,7 @@ const DeskComponent: FC<{dv: DataviewApi, pages: SMarkdownPage[]}> = ({ dv, page
   }, [filters, sort] )
 
   useEffect(() => {
-    // little trick to run an async function in useEffect
-    ( async () => {
-      await filterBasedOnSort()
-    })
+    filterBasedOnSort()
   }, [] )
 
   useEffect(() => {
