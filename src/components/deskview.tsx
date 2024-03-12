@@ -7,6 +7,8 @@ import DeskComponent from './desk'
 import { VIEW_TYPE_DESK } from '../constants'
 import { ExtendedMetadataCache } from '../types'
 import { ObsidianContext } from '../utils/obsidian'
+import { getDataviewAPI } from 'src/utils'
+import { DataviewApi } from 'obsidian-dataview'
 
 class DeskView extends ItemView {
   vault: Vault
@@ -15,6 +17,8 @@ class DeskView extends ItemView {
   root: Root
   escapeHandler: KeymapEventHandler | null
   scope: Scope
+  initialPages: []
+  dv: DataviewApi
 
   constructor( leaf: WorkspaceLeaf, app: App ) {
     super( leaf )
@@ -24,6 +28,9 @@ class DeskView extends ItemView {
     this.escapeHandler = null
 
     this.scope = new Scope( this.app.scope )
+
+    this.dv = getDataviewAPI( this.app )
+    this.initialPages = this.dv.pages( '""' ).values
   }
 
   getViewType() {
@@ -36,17 +43,18 @@ class DeskView extends ItemView {
 
   onOpen = async () => {
     // Handle escape so that I can implement my own behavior later.
-    this.escapeHandler = this.scope.register( [], 'Escape', () => {
-      console.log( 'Escape' )
-    })
+    // this.escapeHandler = this.scope.register( [], 'Escape', () => {
+    //   console.log( 'Escape' )
+    // })
 
     const container = this.containerEl.children[1]
 
     this.root = createRoot( container )
     this.root.render(
       <React.StrictMode>
+        {/* move this.dv into a dv context so the whole plugin can have it */}
         <ObsidianContext.Provider value={this.app}>
-          <DeskComponent />
+          <DeskComponent dv={this.dv} pages={this.initialPages} />
         </ObsidianContext.Provider>
       </React.StrictMode>
     )

@@ -1,21 +1,12 @@
-import { useState, useEffect, useContext, FC } from 'react'
+import { useState, useEffect, useContext, FC, useCallback } from 'react'
 import { produce } from 'immer'
 import { TFile, App } from 'obsidian'
 
 import FilterMenu from './filtermenu'
 import ResultsDisplay from './results'
 
+import { sortOptions, sorters } from '../constants'
 import {
-  dataviewFileToSearchResult,
-  getDataviewAPI,
-  ObsidianContext,
-  getMetadataCache,
-  filterEqual,
-  filtersToDataviewQuery
-} from '../utils'
-import {
-  DeskComponentState,
-  DataviewFile,
   SearchResult,
   Filter,
   BasicFilter,
@@ -26,6 +17,14 @@ import {
   LinkSuggestion,
   SortOption
 } from '../types'
+import {
+  dataviewFileToSearchResult,
+  ObsidianContext,
+  getMetadataCache,
+  filterEqual,
+  filtersToDataviewQuery
+} from '../utils'
+import { DataviewApi, SMarkdownPage } from 'obsidian-dataview'
 
 function getTagSuggestions( app: App ): Filter[] {
   const metadataCache = getMetadataCache( app )
@@ -64,167 +63,168 @@ function getLinkSuggestions( app: App ): LinkFilter[] {
   })
 }
 
-function getBacklinkSuggestions( app: App ): BasicFilter[] {
-  const dv = getDataviewAPI( app )
-  const allPages = dv.pages( '""' ).values
-
-  const withBacklinks = allPages.map(( p: { file: unknown }) => {
-    return p.file
-  }).filter(( p: { outlinks: string | unknown[] }) => {
-    return p.outlinks.length > 0
-  }).map(({ path }: { path: string }) => {
-    return {
-      type: 'backlink',
-      value: path,
-      key: path
+const getBacklinkSuggestions = ( allPages: SMarkdownPage[] ): BasicFilter[] => {
+  const files = allPages.filter(( page: SMarkdownPage ) => {
+    return page?.file?.outlinks?.length > 0
+  }).map(( page: SMarkdownPage ) => {
+    const filter: BasicFilter = {
+      type: 'backlink' as const,
+      value: page.path ?? '',
+      reversed: false,
     }
+
+    return filter
   })
-  return withBacklinks
+
+  return files
 }
 
-function getAllSuggestions( app: App ): Filter[] {
+function getAllSuggestions( app: App, pages: SMarkdownPage[] ): Filter[] {
   const suggestions = [
     ...getTagSuggestions( app ),
     ...getLinkSuggestions( app ),
     ...getFolderSuggestions( app ),
-    ...getBacklinkSuggestions( app ),
+    ...getBacklinkSuggestions( pages ),
   ]
 
   const suggestionOrder = ( a: Filter, b: Filter ) => {
-    return a.value.length - b.value.length
+    return a.value?.length - b.value?.length
   }
 
   return suggestions.sort( suggestionOrder )
 }
 
-const DeskComponent: FC = () => {
-  const [state, setState] = useState<DeskComponentState>({
-    filters: [],
-    sort: null,
-  })
-
+const DeskComponent: FC<{dv: DataviewApi, pages: SMarkdownPage[]}> = ({ dv, pages: initialPages }) => {
   const app = useContext( ObsidianContext )
   if ( !app ) throw new Error( 'no app' )
 
-  const [suggestions, setSuggestions] = useState<Filter[]>( getAllSuggestions( app ))
+  const [sort, setSort] = useState<MaybeSortOption>( sortOptions[0] )
+  const [suggestions, setSuggestions] = useState<Filter[]>( [] )
+  const [filters, setFilters] = useState<Filter[]>( [] )
+  const [pages, setPages] = useState( initialPages )
 
-  // Was not intended to be set directly. The idea is to set the filters and the sort.
+  // Not intended to be set directly. The idea is to set the filters and the sort.
   // Then, the effect listening on state should update the search result list.
   // We need that little hoop because we need to filter the results in an async manner.
   const [searchResults, setSearchResults] = useState<SearchResult[]>( [] )
 
-  useEffect(() => {
-    const createListenerEventRef = app.vault.on( 'create', () => {
-      setSuggestions( getAllSuggestions( app ))
-    })
+  /* ------------------------------ */
+  /*     State Helper Functions     */
+  /* ------------------------------ */
 
-    return () => {
-      app.vault.offref( createListenerEventRef )
+  const filterPages = ( query = '""' ) => {
+    let pages = []
+    if ( dv !== null ) {
+      pages = dv?.pages( query ).values
     }
-  })
 
-  useEffect(() => {
-    const unfilteredSearchResults = generateResults()
+    setPages( pages )
+    return pages
+  }
 
-    // Text filters need to be applied manually, they cannot be realized only with a Dataview page query.
-    const textFilters = state.filters.filter( f => {
+  const filterBasedOnSort = useCallback( async () => {
+    console.log( 'filterBasedOnSort' )
+    const unfilteredSearchResults = await generateResults()
+
+    // Text filters need to be applied manually, they
+    // cannot be realized with only a Dataview page query.
+    const textFilters = filters.filter( f => {
       return f.type === 'text'
     }) as TextFilter[]
+
     const maskPromise = unfilteredSearchResults.map(( p ) => {
       return applyTextFilters( p.path, textFilters )
     })
 
     Promise.all( maskPromise ).then(( mask ) => {
+      // figure out how to do this via setting the
+      // `filters` and `sort` state variables
       setSearchResults( unfilteredSearchResults.filter(( v, i ) => {
         return mask[i]
       }))
     })
-  }, [state] )
+  }, [filters, sort] )
 
-  function onSortChange( sortOption: MaybeSortOption ) {
-    setState( produce( state, draft => {
-      draft.sort = sortOption
+  useEffect(() => {
+    // little trick to run an async function in useEffect
+    ( async () => {
+      await filterBasedOnSort()
+    })
+  }, [] )
+
+  useEffect(() => {
+    setSuggestions( getAllSuggestions( app, initialPages ))
+  }, [dv] )
+
+
+  useEffect(() => {
+    const createListenerEventRef = app.vault.on( 'create', () => {
+      setSuggestions( getAllSuggestions( app, pages ))
+    })
+
+    return () => {
+      app.vault.offref( createListenerEventRef )
+    }
+  }, [pages] )
+
+  const onSortChange = ( sortOption: MaybeSortOption ) => {
+    setSort( produce( sort, () => {
+      return sortOption
     }))
   }
 
-  function onAddFilter( filter: Filter ) {
-    if ( !state.filters.some( f => {
-      return filterEqual( filter, f )
-    })) {
-      const newState = {
-        ...state,
-        filters: [...state.filters, filter],
-      }
+  const onAddFilter = ( newFilter: Filter ) => {
+    const filterAlreadyExists = filters.some(( filter ) => {
+      return filterEqual( newFilter, filter )
+    })
 
-      setState( newState )
-    }
-  }
-
-  function onSetFilters( filters: Filter[] ) {
-    const newState = {
-      ...state,
-      filters: filters
+    if ( filterAlreadyExists ) {
+      return
     }
 
-    setState( newState )
+    const newFilterState = [...filters, newFilter]
+    setFilters( newFilterState )
+
   }
 
-  function onRemoveFilter( index: number ) {
-    const newFilterList = state.filters.slice()
+  const onSetFilters = ( filters: Filter[] ) => {
+    setFilters( filters )
+  }
+
+  const onRemoveFilter = ( index: number ) => {
+    const newFilterList = filters.slice()
     newFilterList.splice( index, 1 )
 
-    const newState = {
-      ...state,
-      filters: newFilterList,
-    }
-
-    setState( newState )
+    setFilters( newFilterList )
   }
 
-  function reverseFilter( filter: Filter ) {
-    const newFilters = state.filters.slice()
-
-    const filterIndex = state.filters.indexOf( filter )
+  const reverseFilter = ( filter: Filter ) => {
+    const newFilters = [...filters]
+    const filterIndex = filters.indexOf( filter )
     newFilters[filterIndex] = {
       ...filter,
       reversed: !filter.reversed
     }
 
-    setState({
-      ...state,
-      filters: newFilters
-    })
+    setFilters( newFilters )
   }
 
-  function generateResults(): SearchResult[] {
+  const generateResults = async (): Promise<SearchResult[]> => {
     if ( !app ) throw new Error( 'no app' )
 
-    const dv = getDataviewAPI( app )
-    const dataviewQuery = filtersToDataviewQuery( state.filters.filter( f => {
+    const dataviewQuery = filtersToDataviewQuery( filters.filter( f => {
       return f.type !== 'text'
     }))
+    filterPages( dataviewQuery )
 
-    const sorters: { [key: string]: ( a: SearchResult, b: SearchResult ) => number } = {
-      'modified_date': ( a: SearchResult, b: SearchResult ) => {
-        return a.mtime.toMillis() - b.mtime.toMillis()
-      },
-      'name': ( a: SearchResult, b: SearchResult ) => {
-        return a.title.localeCompare( b.title )
-      },
-      'size': ( a: SearchResult, b: SearchResult ) => {
-        return a.size - b.size
-      },
-      'backlinks': ( a: SearchResult, b: SearchResult ) => {
-        return a.backlinks - b.backlinks
-      },
+    if ( !sort ) {
+      throw new Error( 'sort is missing' )
     }
 
-    const sortFunction = state.sort ? sorters[state.sort.type] : sorters.modified_date
-    const reversedSortFunction = state.sort && state.sort.reverse ? ( a: SearchResult, b: SearchResult ) => {
+    const sortFunction = sorters[sort.type] ?? sorters.modified_date
+    const reversedSortFunction = sort.reverse ? ( a: SearchResult, b: SearchResult ) => {
       return sortFunction( b, a )
     } : sortFunction
-
-    const pages: { file: DataviewFile }[] = dv.pages( dataviewQuery ).values
 
     const results = pages.map(({ file }) => {
       return dataviewFileToSearchResult( file )
@@ -233,7 +233,7 @@ const DeskComponent: FC = () => {
     return results
   }
 
-  async function applyTextFilters( path: string, filters: TextFilter[] ): Promise<boolean> {
+  const applyTextFilters = async ( path: string, filters: TextFilter[] ): Promise<boolean> => {
     if ( !app ) throw new Error( 'no app' )
 
     const fileHandle = app.vault.getAbstractFileByPath( path )
@@ -254,34 +254,37 @@ const DeskComponent: FC = () => {
     throw new Error( 'unexpected type when reading file' )
   }
 
-  return <div className="desk__root">
-    <div className='desk__search-menu'>
-      <FilterMenu
-        filters={state.filters}
-        suggestions={suggestions}
-        sort={state.sort}
-        onSortChange={( sortOption: SortOption ) => {
-          return onSortChange( sortOption )
-        }}
-        addFilter={( f: Filter ) => {
+  return (
+    <div className='desk__root'>
+      <div className='desk__search-menu'>
+        <FilterMenu
+          filters={filters}
+          suggestions={suggestions}
+          sort={sort}
+          onSortChange={( sortOption: SortOption ) => {
+            return onSortChange( sortOption )
+          }}
+          addFilter={( f: Filter ) => {
+            onAddFilter( f )
+          }}
+          removeFilter={( i: number ) => {
+            onRemoveFilter( i )
+          }}
+          reverseFilter={( f: Filter ) => {
+            reverseFilter( f )
+          }} />
+      </div>
+      <ResultsDisplay
+        results={searchResults}
+        addFilter={( f ) => {
           onAddFilter( f )
         }}
-        removeFilter={( i: number ) => {
-          onRemoveFilter( i )
+        setFilters={( f ) => {
+          onSetFilters( f )
         }}
-        reverseFilter={( f: Filter ) => {
-          reverseFilter( f )
-        }} />
+      />
     </div>
-    <ResultsDisplay
-      results={searchResults}
-      addFilter={( f ) => {
-        onAddFilter( f )
-      }}
-      setFilters={( f ) => {
-        onSetFilters( f )
-      }} />
-  </div>
+  )
 }
 
 export default DeskComponent
