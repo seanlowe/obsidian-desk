@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useRef, FC } from 'react'
-import { App, TFile, MarkdownRenderer } from 'obsidian'
+import { App, TFile, MarkdownRenderer, Component } from 'obsidian'
 import * as _ from 'lodash'
 
 import { NoteCardProps } from '../types'
@@ -22,11 +22,12 @@ const NoteCard: FC<NoteCardProps> = ( props ) => {
 
   useEffect(() => {
     const container = contentRef.current
+    const component = new Component()
     const renderNote = async () => {
       if ( container !== null ) {
         // SEANTODO: fix error here
         console.log( 'Rendering note' )
-        await MarkdownRenderer.render( app, body, container, props.path, null )
+        await MarkdownRenderer.render( app, body, container, props.path, component )
 
         checkOverflow( container )
       } else {

@@ -4,7 +4,7 @@ import { LampDesk } from 'lucide-react'
 import FilterChip from './filterchip'
 import SortChip from './sortchip'
 
-import { MAX_SUGGESTIONS } from '../constants'
+import { MAX_SUGGESTIONS, SUGGESTION_TEXT_MAP } from '../constants'
 import { Filter, FilterMenuProps } from '../types'
 import { keyOfFilter, filterEqual } from '../utils/filter'
 
@@ -124,52 +124,18 @@ const FilterMenu: FC<FilterMenuProps> = ( props ) => {
     }
   })
 
-
-  // const newSuggestionDescription = ( filter: Filter ) => {
-  //   let text = ''
-  //   const component = (
-  //     <span>
-  //       {text} <FilterChip filter={filter} closeable={false} />
-  //     </span>
-  //   )
-
-  //   switch ( filter.type ) {
-  //   case 'tag':
-  //     text = 'Has tag'
-  //     break
-  //   case 'folder':
-  //     text = 'Is inside folder'
-  //     break
-  //   case 'link':
-  //     text = 'Links to'
-  //     break
-  //   case 'backlink':
-  //     text = 'Is linked by'
-  //     break
-  //   case 'text':
-  //     text = 'Contains text'
-  //     break
-  //   default:
-  //     throw new Error( 'Unknown filter type when generating description text.' )
-  //   }
-
-  //   return component
-  // }
-
   function suggestionDescription( filter: Filter ) {
-    if ( filter.type === 'tag' ) {
-      return <span>Has tag <FilterChip filter={filter} closeable={false} /></span>
-    } else if ( filter.type === 'folder' ) {
-      return <span>Is inside folder <FilterChip filter={filter} closeable={false} /></span>
-    } else if ( filter.type === 'link' ) {
-      return <span>Links to <FilterChip filter={filter} closeable={false} /></span>
-    } else if ( filter.type === 'backlink' ) {
-      return <span>Is linked by <FilterChip filter={filter} closeable={false} /></span>
-    } else if ( filter.type === 'text' ) {
-      return <span>Contains text <FilterChip filter={filter} closeable={false}></FilterChip></span>
-    } else {
+    const text = SUGGESTION_TEXT_MAP[filter.type]
+
+    if ( !text ) {
       throw new Error( 'Unknown filter type when generating description text.' )
     }
+
+    return (
+      <span>
+        {text} <FilterChip filter={filter} closeable={false} />
+      </span>
+    )
   }
 
   const suggestionComponents = filteredSuggestions.slice( 0, MAX_SUGGESTIONS ).map(( suggestion, index ) => {
@@ -215,9 +181,12 @@ const FilterMenu: FC<FilterMenuProps> = ( props ) => {
     <div className='desk__filter-menu'>
       <LampDesk className='list-filter-icon' />
       <div className={'desk__autocomplete-search-box-container'}>
-        <SortChip onChange={( s ) => {
-          props.onSortChange( s )
-        }} sort={props.sort} />
+        <SortChip
+          sort={props.sort}
+          onChange={( s ) => {
+            props.onSortChange( s )
+          }}
+        />
         {chips}
         <div className='desk__filter-search-container'>
           <input

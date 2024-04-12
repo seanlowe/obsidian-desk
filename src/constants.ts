@@ -4,6 +4,13 @@ import { SearchResult, SortOption, Sorter } from './types'
 export const VIEW_TYPE_DESK = 'desk-view'
 export const RESULTS_BATCH_SIZE = 20
 export const MAX_SUGGESTIONS = 50
+export const SUGGESTION_TEXT_MAP = {
+  tag: 'Has tag',
+  folder: 'Is inside folder',
+  link: 'Links to',
+  backlink: 'Is linked by',
+  text: 'Contains text',
+}
 
 // idea: custom sorting options?
 export const sortOptions: SortOption[] = [

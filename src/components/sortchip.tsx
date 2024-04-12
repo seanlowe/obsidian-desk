@@ -68,9 +68,10 @@ const SortChip: FC<SortChipProps> = ( props ) => {
 
   return (
     <div className='desk__sort-chip-container'>
-      <span className={'desk__chip'} onClick={( e ) => {
-        onClick( e )
-      }}>
+      <span
+        className={'desk__chip'}
+        onClick={onClick}
+      >
         <span className='desk__chip-label'> {orderIcon}{props.sort?.label ?? 'Sort'}</span>
         {props.sort === null
           ? <ChevronDown className="desk__chip-icon" />

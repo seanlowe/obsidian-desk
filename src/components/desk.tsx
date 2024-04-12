@@ -147,7 +147,7 @@ const DeskComponent: FC<{dv: DataviewApi, pages: SMarkdownPage[]}> = ({ dv, page
 
   useEffect(() => {
     filterBasedOnSort()
-  }, [] )
+  }, [filters, sort] )
 
   useEffect(() => {
     setSuggestions( getAllSuggestions( app, initialPages ))
@@ -214,12 +214,8 @@ const DeskComponent: FC<{dv: DataviewApi, pages: SMarkdownPage[]}> = ({ dv, page
     }))
     filterPages( dataviewQuery )
 
-    if ( !sort ) {
-      throw new Error( 'sort is missing' )
-    }
-
-    const sortFunction = sorters[sort.type] ?? sorters.modified_date
-    const reversedSortFunction = sort.reverse ? ( a: SearchResult, b: SearchResult ) => {
+    const sortFunction = sorters[sort?.type] ?? sorters.modified_date
+    const reversedSortFunction = sort?.reverse ? ( a: SearchResult, b: SearchResult ) => {
       return sortFunction( b, a )
     } : sortFunction
 
