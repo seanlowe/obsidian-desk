@@ -2,7 +2,8 @@ import { Plugin } from 'obsidian'
 
 import { VIEW_TYPE_DESK } from './constants'
 import DeskView from './components/deskview'
-import { AwaitedDvApiMessage, waitForDataview } from './utils'
+import { waitForDataview } from './utils'
+import type { AwaitedDvApiMessage } from './types'
 
 class DeskPlugin extends Plugin {
   dataviewPlugin: AwaitedDvApiMessage

@@ -10,12 +10,12 @@ import { ObsidianContext } from '../utils/obsidian'
 const ResultsDisplay: FC<SearchResultsProps> = ( props ) => {
   const app = useContext( ObsidianContext )
   const numberResults = props.results.length
-  const [numberResultsShown, setNumberResultsShown] = useState( Math.min( RESULTS_BATCH_SIZE, props.results.length ))
+  const [numberResultsShown, setNumberResultsShown] = useState( Math.min( RESULTS_BATCH_SIZE, numberResults ))
   const resultDisplayRef = useRef( null )
   const bottomSensorRef = useRef( null )
 
   useEffect(() => {
-    setNumberResultsShown( Math.min( RESULTS_BATCH_SIZE, props.results.length ))
+    setNumberResultsShown( Math.min( RESULTS_BATCH_SIZE, numberResults ))
   }, [props.results] )
 
   useEffect(() => {

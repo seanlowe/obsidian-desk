@@ -1,10 +1,16 @@
 import { DateTime } from 'luxon/src/datetime'
 import { MouseEventHandler } from 'react'
 import { MetadataCache } from 'obsidian'
+import { DataviewApi } from 'obsidian-dataview'
 
 /* ------------------------------ */
 /*           Interfaces           */
 /* ------------------------------ */
+
+export interface AwaitedDvApiMessage {
+  dvApi: DataviewApi | null
+  status: 'initialized' | 'index-ready' | 'not-enabled'
+}
 
 export interface BasicFilter {
   type: 'tag' | 'folder' | 'backlink'
@@ -12,6 +18,7 @@ export interface BasicFilter {
   reversed: boolean
 }
 
+// type from the DV API is SMarkdownPage
 export interface DataviewFile {
   ctime: DateTime,
   mtime: DateTime,

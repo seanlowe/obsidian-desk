@@ -1,3 +1,4 @@
+import { CaseLower, FileInput, FileOutput, Folder, Tag } from 'lucide-react'
 import { SearchResult, SortOption, Sorter } from './types'
 
 export const VIEW_TYPE_DESK = 'desk-view'
@@ -12,6 +13,13 @@ export const sortOptions: SortOption[] = [
   { label: 'Number of backlinks', type: 'backlinks', reverse: true }
 ]
 
+export const iconOfType = {
+  'folder': Folder,
+  'link': FileOutput,
+  'tag': Tag,
+  'text': CaseLower,
+  'backlink': FileInput,
+}
 
 export const sorters: Sorter = {
   'modified_date': ( a: SearchResult, b: SearchResult ) => {

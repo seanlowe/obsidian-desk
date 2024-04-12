@@ -1,7 +1,8 @@
-import { SearchResult, DataviewFile } from '../types'
 import { App } from 'obsidian'
 import { getAPI, isPluginEnabled, DataviewApi } from 'obsidian-dataview'
+
 import DeskPlugin from 'src/main'
+import { SearchResult, DataviewFile, AwaitedDvApiMessage } from '../types'
 
 export * from './obsidian'
 export * from './filter'
@@ -30,10 +31,6 @@ export function getDataviewAPI( app: App ): DataviewApi {
   throw new Error( 'Could not access Dataview API' )
 }
 
-export type AwaitedDvApiMessage = {
-  dvApi: DataviewApi | null
-  status: 'initialized' | 'index-ready' | 'not-enabled'
-}
 // credit to: @SkepticMystic:
 // https://github.com/SkepticMystic/breadcrumbs/blob/00205750c658beef372a0ce498359b37dee7004d/src/external/dataview/index.ts#L7
 export const waitForDataview = ( plugin: DeskPlugin ): Promise<AwaitedDvApiMessage> => {

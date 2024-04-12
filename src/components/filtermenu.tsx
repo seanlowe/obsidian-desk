@@ -124,7 +124,38 @@ const FilterMenu: FC<FilterMenuProps> = ( props ) => {
     }
   })
 
-  // SEANTODO: make this better
+
+  // const newSuggestionDescription = ( filter: Filter ) => {
+  //   let text = ''
+  //   const component = (
+  //     <span>
+  //       {text} <FilterChip filter={filter} closeable={false} />
+  //     </span>
+  //   )
+
+  //   switch ( filter.type ) {
+  //   case 'tag':
+  //     text = 'Has tag'
+  //     break
+  //   case 'folder':
+  //     text = 'Is inside folder'
+  //     break
+  //   case 'link':
+  //     text = 'Links to'
+  //     break
+  //   case 'backlink':
+  //     text = 'Is linked by'
+  //     break
+  //   case 'text':
+  //     text = 'Contains text'
+  //     break
+  //   default:
+  //     throw new Error( 'Unknown filter type when generating description text.' )
+  //   }
+
+  //   return component
+  // }
+
   function suggestionDescription( filter: Filter ) {
     if ( filter.type === 'tag' ) {
       return <span>Has tag <FilterChip filter={filter} closeable={false} /></span>
